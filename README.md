@@ -1,5 +1,3 @@
-# Getting Started
-
 # Market
 
 Market is a server side java application as a stock market trading backend
