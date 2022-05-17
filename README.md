@@ -2,7 +2,7 @@
 
 # Market
 
-Market is a java server side application as a stock market trading backend
+Market is a server side java application as a stock market trading backend
 
 ### Setup database
 
