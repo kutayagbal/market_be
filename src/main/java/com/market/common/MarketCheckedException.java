@@ -1,4 +1,4 @@
-package com.market.exception;
+package com.market.common;
 
 public class MarketCheckedException extends Exception {
 

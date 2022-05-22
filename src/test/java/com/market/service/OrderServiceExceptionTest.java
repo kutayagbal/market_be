@@ -10,14 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.market.common.Constants;
-import com.market.model.Demand;
+import com.market.entity.Demand;
+import com.market.entity.Stock;
+import com.market.entity.Supply;
+import com.market.entity.Trade;
+import com.market.entity.User;
+import com.market.entity.UserStock;
 import com.market.model.Order;
-import com.market.model.Stock;
-import com.market.model.Supply;
-import com.market.model.Trade;
-import com.market.model.User;
-import com.market.model.UserStock;
 import com.market.repo.DemandRepo;
 import com.market.repo.StockRepo;
 import com.market.repo.SupplyRepo;
@@ -62,17 +61,17 @@ public class OrderServiceExceptionTest {
                 mockSupplierStocks.add(new UserStock(mockStock, mockSupplyQuantity));
 
                 User mockSupplier = new User(mockSupplierUsername, "mockPassword", "mockFullName", mockSupplierBalance,
-                                Constants.Roles.SCOPE_TRADER.name(), new ArrayList<Demand>(), new ArrayList<Supply>(),
+                                new ArrayList<Demand>(), new ArrayList<Supply>(),
                                 mockSupplierStocks);
 
                 User mockConsumer0 = new User(mockConsumerUsername0, "mockPassword0", "mockFullName0",
                                 mockConsumerBalance0,
-                                Constants.Roles.SCOPE_TRADER.name(), new ArrayList<Demand>(), new ArrayList<Supply>(),
+                                new ArrayList<Demand>(), new ArrayList<Supply>(),
                                 new ArrayList<UserStock>());
 
                 User mockConsumer1 = new User(mockConsumerUsername1, "mockPassword1", "mockFullName1",
                                 mockConsumerBalance1,
-                                Constants.Roles.SCOPE_TRADER.name(), new ArrayList<Demand>(), new ArrayList<Supply>(),
+                                new ArrayList<Demand>(), new ArrayList<Supply>(),
                                 new ArrayList<UserStock>());
 
                 Order mockSupplyOrder = new Order(mockStockName, mockSupplyQuantity, null);
@@ -156,16 +155,16 @@ public class OrderServiceExceptionTest {
 
                 User mockSupplier0 = new User(mockSupplierUsername0, "mockPassword0", "mockFullName0",
                                 mockSupplierBalance0,
-                                Constants.Roles.SCOPE_TRADER.name(), new ArrayList<Demand>(), new ArrayList<Supply>(),
+                                new ArrayList<Demand>(), new ArrayList<Supply>(),
                                 new ArrayList<UserStock>());
 
                 User mockSupplier1 = new User(mockSupplierUsername1, "mockPassword1", "mockFullName1",
                                 mockSupplierBalance1,
-                                Constants.Roles.SCOPE_TRADER.name(), new ArrayList<Demand>(), new ArrayList<Supply>(),
+                                new ArrayList<Demand>(), new ArrayList<Supply>(),
                                 mockSupplierStocks1);
 
                 User mockConsumer = new User(mockConsumerUsername, "mockPassword", "mockFullName", mockConsumerBalance,
-                                Constants.Roles.SCOPE_TRADER.name(), new ArrayList<Demand>(), new ArrayList<Supply>(),
+                                new ArrayList<Demand>(), new ArrayList<Supply>(),
                                 new ArrayList<UserStock>());
 
                 Order mockDemandOrder = new Order(mockStockName, mockSupplyQuantity, null);

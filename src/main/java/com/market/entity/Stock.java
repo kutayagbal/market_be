@@ -1,4 +1,4 @@
-package com.market.model;
+package com.market.entity;
 
 import java.math.BigDecimal;
 import java.util.List;

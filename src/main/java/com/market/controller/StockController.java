@@ -3,7 +3,7 @@ package com.market.controller;
 import java.util.List;
 
 import com.market.common.Constants;
-import com.market.exception.MarketException;
+import com.market.common.MarketException;
 import com.market.model.Quote;
 import com.market.service.StockService;
 

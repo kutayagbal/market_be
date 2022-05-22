@@ -1,7 +1,5 @@
 package com.market.common;
 
-import com.market.exception.MarketException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -17,13 +15,25 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public @ResponseBody com.market.common.ErrorResponse handleException(Exception e) {
+    public @ResponseBody ErrorResponse handleException(Exception e) {
         logger.error(Constants.ERROR_LOG_PREFIX, e);
 
         if (e instanceof MarketException) {
-            return new com.market.common.ErrorResponse(e.getMessage());
+            return new ErrorResponse(e.getMessage());
         }
 
-        return new com.market.common.ErrorResponse(Constants.GENERIC_ERROR_MSG);
+        return new ErrorResponse(Constants.GENERIC_ERROR_MSG);
+    }
+
+    private class ErrorResponse {
+        private final String errorMessage;
+
+        public ErrorResponse(String errMsg) {
+            errorMessage = errMsg;
+        }
+
+        public String getErrorMessage() {
+            return this.errorMessage;
+        }
     }
 }

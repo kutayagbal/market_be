@@ -1,4 +1,4 @@
-package com.market.model;
+package com.market.entity;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,7 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
-import com.market.exception.MarketCheckedException;
+import com.market.common.MarketCheckedException;
+import com.market.model.Order;
 
 @Entity
 public class User {
@@ -23,7 +24,6 @@ public class User {
 	private String username;
 	private String password;
 	private String fullName;
-	private String role;
 
 	private BigDecimal balance;
 
@@ -39,14 +39,13 @@ public class User {
 	@JoinColumn(name = "user")
 	private List<UserStock> userStocks;
 
-	public User(String username, String password, String fullName, BigDecimal balance, String role,
+	public User(String username, String password, String fullName, BigDecimal balance,
 			List<Demand> demands, List<Supply> supplies, List<UserStock> userStocks) {
 		super();
 		this.username = username;
 		this.password = password;
 		this.fullName = fullName;
 		this.balance = balance;
-		this.role = role;
 		this.demands = demands;
 		this.supplies = supplies;
 		this.userStocks = userStocks;
@@ -74,10 +73,6 @@ public class User {
 
 	public BigDecimal getBalance() {
 		return balance;
-	}
-
-	public String getRole() {
-		return role;
 	}
 
 	public List<Demand> getDemands() {

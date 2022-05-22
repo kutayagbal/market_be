@@ -2,7 +2,7 @@ package com.market.repo;
 
 import java.util.Optional;
 
-import com.market.model.Stock;
+import com.market.entity.Stock;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

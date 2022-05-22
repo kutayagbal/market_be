@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.market.common.Constants;
-import com.market.exception.MarketException;
+import com.market.common.MarketException;
 import com.market.model.Order;
 import com.market.service.OrderBookService;
 

@@ -1,4 +1,4 @@
-package com.market.model;
+package com.market.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

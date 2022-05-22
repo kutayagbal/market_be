@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import com.market.model.PriceHistory;
-import com.market.model.Stock;
+import com.market.entity.PriceHistory;
+import com.market.entity.Stock;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

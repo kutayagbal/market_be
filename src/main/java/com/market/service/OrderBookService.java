@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.market.common.Constants;
-import com.market.model.Demand;
-import com.market.model.Stock;
-import com.market.model.Supply;
+import com.market.entity.Demand;
+import com.market.entity.Stock;
+import com.market.entity.Supply;
 import com.market.repo.DemandRepo;
 import com.market.repo.StockRepo;
 import com.market.repo.SupplyRepo;

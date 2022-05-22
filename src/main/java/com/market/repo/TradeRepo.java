@@ -1,6 +1,6 @@
 package com.market.repo;
 
-import com.market.model.Trade;
+import com.market.entity.Trade;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
