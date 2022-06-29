@@ -27,11 +27,11 @@ public class User {
 
 	private BigDecimal balance;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "consumer")
 	private List<Demand> demands;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "supplier")
 	private List<Supply> supplies;
 
@@ -87,8 +87,13 @@ public class User {
 		return userStocks;
 	}
 
+	@Override
+	public String toString() {
+		return "User [balance=" + balance + ", fullName=" + fullName + ", username=" + username + "]";
+	}
+
 	public void sellStock(Order supply) throws MarketCheckedException {
-		Optional<UserStock> userStockOpt = userStocks.stream()
+		Optional<UserStock> userStockOpt = this.userStocks.stream()
 				.filter(st -> st.getStock().getName().equals(supply.getStock()))
 				.findFirst();
 
@@ -97,7 +102,7 @@ public class User {
 			UserStock userStock = userStockOpt.get();
 
 			if (userStock.getQuantity().compareTo(supply.getQuantity()) == 0) {
-				userStocks.remove(userStock);
+				this.userStocks.remove(userStock);
 			} else if (userStock.getQuantity().compareTo(supply.getQuantity()) > 0) {
 				userStock.sell(supply.getQuantity());
 			} else {

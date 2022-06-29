@@ -1,6 +1,7 @@
 package com.market.entity;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -82,7 +83,8 @@ public class Stock {
 
     private void setRate(BigDecimal newPrice) {
         if (this.price.compareTo(BigDecimal.ZERO) != 0) {
-            this.rate = newPrice.multiply(this.rate.add(BigDecimal.valueOf(100))).divide(this.price)
+            this.rate = newPrice.multiply(this.rate.add(BigDecimal.valueOf(100)))
+                    .divide(this.price, 2, RoundingMode.HALF_UP)
                     .subtract(BigDecimal.valueOf(100));
         } else {
             this.rate = BigDecimal.ZERO;

@@ -8,12 +8,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import com.market.entity.PriceHistory;
-import com.market.entity.Stock;
-
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+
+import com.market.entity.PriceHistory;
+import com.market.entity.Stock;
 
 @Component
 public class RandomDataLoader implements ApplicationRunner {
@@ -37,14 +37,21 @@ public class RandomDataLoader implements ApplicationRunner {
     private static int PRICE_HISTORY_LENGTH_LIMIT = 50;
 
     private final StockRepo stockRepo;
+    private final TradeRepo tradeRepo;
+    private final UserRepo userRepo;
 
     private Random rand = new Random();
 
-    public RandomDataLoader(StockRepo stockRepo) {
+    public RandomDataLoader(StockRepo stockRepo, UserRepo userRepo, TradeRepo tradeRepo) {
         this.stockRepo = stockRepo;
+        this.userRepo = userRepo;
+        this.tradeRepo = tradeRepo;
+
     }
 
     public void run(ApplicationArguments args) {
+        tradeRepo.deleteAll();
+        userRepo.deleteAll();
         stockRepo.deleteAll();
 
         for (int i = 0; i < STOCK_COUNT; i++) {

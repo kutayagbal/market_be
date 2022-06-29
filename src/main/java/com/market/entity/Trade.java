@@ -39,6 +39,10 @@ public class Trade {
 		this.supplier = supplier;
 	}
 
+	public Trade() {
+		super();
+	}
+
 	public Integer getQuantity() {
 		return quantity;
 	}

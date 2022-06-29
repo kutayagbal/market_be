@@ -38,4 +38,9 @@ public class Order {
 		this.price = price;
 	}
 
+	@Override
+	public String toString() {
+		return "Order [price=" + price + ", quantity=" + quantity + ", stock=" + stock + "]";
+	}
+
 }

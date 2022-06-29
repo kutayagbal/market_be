@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import com.market.entity.Demand;
 import com.market.entity.Stock;
 import com.market.entity.Supply;
@@ -22,10 +26,6 @@ import com.market.repo.StockRepo;
 import com.market.repo.SupplyRepo;
 import com.market.repo.TradeRepo;
 import com.market.repo.UserRepo;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 public class OrderServiceExceptionTest {
 
@@ -175,7 +175,7 @@ public class OrderServiceExceptionTest {
                 when(mockUserRepo.findByUsername(mockSupplierUsername1)).thenReturn(Optional.of(mockSupplier1));
                 when(mockUserRepo.findByUsername(mockConsumerUsername)).thenReturn(Optional.of(mockConsumer));
                 when(mockStockRepo.findByName(mockStockName)).thenReturn(Optional.of(mockStock));
-                when(mockSupplyRepo.findAllByStockOrderByPriceAsc(mockStockName))
+                when(mockSupplyRepo.findAllByStockOrderByPriceAsc(mockStock))
                                 .thenReturn(List.of(mockSupply0, mockSupply1));
 
                 orderService = new OrderService(mockUserRepo, mockDemandRepo, mockSupplyRepo, mockStockRepo,

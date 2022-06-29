@@ -1,15 +1,21 @@
 package com.market.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Service;
+
 import com.market.common.Constants;
 import com.market.common.MarketCheckedException;
 import com.market.common.MarketException;
 import com.market.entity.Demand;
+import com.market.entity.PriceHistory;
 import com.market.entity.Stock;
 import com.market.entity.Supply;
 import com.market.entity.Trade;
@@ -21,10 +27,6 @@ import com.market.repo.StockRepo;
 import com.market.repo.SupplyRepo;
 import com.market.repo.TradeRepo;
 import com.market.repo.UserRepo;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Service;
 
 @Service
 public class OrderService {
@@ -47,13 +49,15 @@ public class OrderService {
     }
 
     @Transactional
-    public void supply(Order supply, String username) {
+    public Stock supply(Order supply, String username) {
+        logger.info("$$$ sell order for user: " + username + "\n" + supply.toString());
         Optional<User> supplierOpt = userRepo.findByUsername(username);
 
         if (supplierOpt.isPresent()) {
             User supplier = supplierOpt.get();
             Stock stock = checkStock(supply, supplier);
             tradeSupply(stock, supply, supplier);
+            return stock;
         } else {
             throw new MarketException(Constants.NO_USR_MSG);
         }
@@ -68,20 +72,54 @@ public class OrderService {
             if (lastDemandPrice != null && BigDecimal.valueOf(-1).compareTo(lastDemandPrice) != 0) {
                 supplier.getSupplies().add(new Supply(stock, supply.getQuantity(), lastDemandPrice, supplier));
                 if (stock.getBestAsk().compareTo(lastDemandPrice) > 0) {
+                    logger.info("$$$ We have bestAsk for stock");
                     stock.setBestAsk(lastDemandPrice);
                 }
             } else if (lastDemandPrice == null) {
-                // last trade price
-                supplier.getSupplies().add(new Supply(stock, supply.getQuantity(), stock.getPrice(), supplier));
-                if (stock.getBestAsk().compareTo(stock.getPrice()) > 0) {
-                    stock.setBestAsk(stock.getPrice());
+                if (supply.getPrice() != null) {
+                    logger.info(
+                            "$$$ Creating supply for stock: " + stock.getName() + "\n user price: " + supply.getPrice()
+                                    + " quantity: " + supply.getQuantity());
+
+                    supplier.getSupplies().add(new Supply(stock, supply.getQuantity(), supply.getPrice(), supplier));
+                    if (stock.getBestAsk().compareTo(supply.getPrice()) > 0) {
+                        logger.info("$$$ We have bestAsk for stock");
+                        stock.setBestAsk(supply.getPrice());
+                    }
+                } else {
+                    // last trade price
+                    logger.info("$$$ Creating supply for stock: " + stock.getName() + "\n price: " + stock.getPrice()
+                            + " quantity: " + supply.getQuantity());
+                    supplier.getSupplies().add(new Supply(stock, supply.getQuantity(), stock.getPrice(), supplier));
+
+                    if (stock.getBestAsk().compareTo(stock.getPrice()) > 0) {
+                        logger.info("$$$ We have bestAsk for stock");
+                        stock.setBestAsk(stock.getPrice());
+                    }
                 }
             }
         } else {
-            // last trade price
-            supplier.getSupplies().add(new Supply(stock, supply.getQuantity(), stock.getPrice(), supplier));
-            if (stock.getBestAsk().compareTo(stock.getPrice()) > 0) {
-                stock.setBestAsk(stock.getPrice());
+            logger.info("$$$ No demand found for stock: " + stock.getName());
+
+            if (supply.getPrice() != null) {
+                logger.info("$$$ Creating supply for stock: " + stock.getName() + "\n user price: " + supply.getPrice()
+                        + " quantity: " + supply.getQuantity());
+
+                supplier.getSupplies().add(new Supply(stock, supply.getQuantity(), supply.getPrice(), supplier));
+                if (stock.getBestAsk().compareTo(supply.getPrice()) > 0) {
+                    logger.info("$$$ We have bestAsk for stock");
+                    stock.setBestAsk(supply.getPrice());
+                }
+            } else {
+                // last trade price
+                logger.info("$$$ Creating supply for stock: " + stock.getName() + "\n price: " + stock.getPrice()
+                        + " quantity: " + supply.getQuantity());
+                supplier.getSupplies().add(new Supply(stock, supply.getQuantity(), stock.getPrice(), supplier));
+
+                if (stock.getBestAsk().compareTo(stock.getPrice()) > 0) {
+                    logger.info("$$$ We have bestAsk for stock");
+                    stock.setBestAsk(stock.getPrice());
+                }
             }
         }
     }
@@ -91,7 +129,9 @@ public class OrderService {
         for (Demand demand : demands) {
             if (demand.getQuantity().compareTo(supply.getQuantity()) >= 0) {
                 Order match = new Order(supply.getStock(), supply.getQuantity(), demand.getPrice());
+                logger.info("$$$ Sold full match to user: " + demand.getUser().toString() + "\n" + match.toString());
                 if (!supplierMatchProcessed(supplier, demand, match, stock)) {
+                    logger.info("Match could not be processes.");
                     continue;
                 }
 
@@ -102,6 +142,8 @@ public class OrderService {
                 return BigDecimal.valueOf(-1);
             } else {
                 Order match = new Order(supply.getStock(), demand.getQuantity(), demand.getPrice());
+                logger.info("$$$ Sold partial match to user: " + demand.getUser().toString() + "\n" + match.toString());
+
                 if (!supplierMatchProcessed(supplier, demand, match, stock)) {
                     continue;
                 }
@@ -138,17 +180,22 @@ public class OrderService {
     private void trade(Stock stock, Order match, User consumer, User supplier) {
         tradeRepo.save(new Trade(stock, match.getQuantity(), match.getPrice(), consumer, supplier));
         stock.setPrice(match.getPrice());
+        stock.getPriceHistory().add(new PriceHistory(LocalDateTime.now(), match.getPrice()));
     }
 
     @Transactional
-    public void consume(Order demand, String username) {
+    public Stock consume(Order demand, String username) {
+        logger.info("$$$ Buy order for user: " + username + "\n" + demand.toString());
         Optional<User> consumerOpt = userRepo.findByUsername(username);
 
         if (consumerOpt.isPresent()) {
+            User consumer = consumerOpt.get();
             Optional<Stock> stockOpt = stockRepo.findByName(demand.getStock());
 
             if (stockOpt.isPresent()) {
-                tradeDemand(stockOpt.get(), demand, consumerOpt.get());
+                Stock stock = stockOpt.get();
+                tradeDemand(stock, demand, consumer);
+                return stock;
             } else {
                 throw new MarketException(Constants.NO_STOCK_MSG);
             }
@@ -159,7 +206,7 @@ public class OrderService {
     }
 
     private void tradeDemand(Stock stock, Order demand, User consumer) {
-        List<Supply> supplies = supplyRepo.findAllByStockOrderByPriceAsc(demand.getStock());
+        List<Supply> supplies = supplyRepo.findAllByStockOrderByPriceAsc(stock);
 
         if (!supplies.isEmpty()) {
             BigDecimal lastSupplyPrice = matchDemand(supplies, demand, consumer, stock);
@@ -167,21 +214,61 @@ public class OrderService {
             if (lastSupplyPrice != null && BigDecimal.valueOf(-1).compareTo(lastSupplyPrice) != 0) {
                 consumer.getDemands().add(new Demand(stock, demand.getQuantity(), lastSupplyPrice, consumer));
                 if (stock.getBestBid().compareTo(lastSupplyPrice) < 0) {
-                    stock.setBestAsk(lastSupplyPrice);
+                    logger.info("$$$ We have bestBid for stock");
+                    stock.setBestBid(lastSupplyPrice);
                 }
             } else if (lastSupplyPrice == null) {
-                // last trade price
-                consumer.getDemands().add(new Demand(stock, demand.getQuantity(), stock.getPrice(), consumer));
-                if (stock.getBestBid().compareTo(stock.getPrice()) < 0) {
-                    stock.setBestAsk(stock.getPrice());
+                if (demand.getPrice() != null) {
+                    logger.info(
+                            "$$$ Creating demand for stock: " + stock.getName() + "\n user price: " + demand.getPrice()
+                                    + " quantity: " + demand.getQuantity());
+                    consumer.getDemands().add(new Demand(stock, demand.getQuantity(), demand.getPrice(), consumer));
+
+                    if (stock.getBestBid().compareTo(demand.getPrice()) < 0) {
+                        logger.info("$$$ We have bestBid for stock");
+                        stock.setBestBid(demand.getPrice());
+                    }
+                } else {
+                    // last trade price
+                    logger.info("$$$ Creating demand for stock: " + stock.getName() + "\n price: " + stock.getPrice()
+                            + " quantity: " + demand.getQuantity());
+                    consumer.getDemands().add(new Demand(stock, demand.getQuantity(), stock.getPrice(), consumer));
+
+                    if (stock.getBestBid().compareTo(stock.getPrice()) < 0) {
+                        logger.info("$$$ We have bestBid for stock");
+                        stock.setBestBid(stock.getPrice());
+                    }
                 }
             }
         } else {
-            // last trade price
-            consumer.getDemands().add(new Demand(stock, demand.getQuantity(), stock.getPrice(), consumer));
-            if (stock.getBestBid().compareTo(stock.getPrice()) < 0) {
-                stock.setBestAsk(stock.getPrice());
+            logger.info("$$$ No supply found for stock: " + stock.getName());
+
+            if (demand.getPrice() != null) {
+                logger.info("$$$ Creating demand for stock: " + stock.getName() + "\n user price: " + demand.getPrice()
+                        + " quantity: " + demand.getQuantity());
+                consumer.getDemands().add(new Demand(stock, demand.getQuantity(), demand.getPrice(), consumer));
+
+                if (stock.getBestBid().compareTo(demand.getPrice()) < 0) {
+                    logger.info("$$$ We have bestBid for stock");
+                    stock.setBestBid(demand.getPrice());
+                }
+            } else {
+                // last trade price
+                logger.info("$$$ Creating demand for stock: " + stock.getName() + "\n price: " + stock.getPrice()
+                        + " quantity: " + demand.getQuantity());
+                consumer.getDemands().add(new Demand(stock, demand.getQuantity(), stock.getPrice(), consumer));
+
+                if (stock.getBestBid().compareTo(stock.getPrice()) < 0) {
+                    logger.info("$$$ We have bestBid for stock");
+                    stock.setBestBid(stock.getPrice());
+                }
             }
+        }
+
+        consumer.getDemands().add(new Demand(stock, demand.getQuantity(),
+                demand.getPrice() != null ? demand.getPrice() : stock.getPrice(), consumer));
+        if (stock.getBestBid().compareTo(stock.getPrice()) < 0) {
+            stock.setBestAsk(stock.getPrice());
         }
     }
 
@@ -190,8 +277,10 @@ public class OrderService {
         for (Supply supply : supplies) {
             if (supply.getQuantity().compareTo(demand.getQuantity()) >= 0) {
                 Order match = new Order(demand.getStock(), demand.getQuantity(), supply.getPrice());
-
+                logger.info(
+                        "$$$ Bought full match from user: " + supply.getUser().toString() + "\n" + match.toString());
                 if (!consumerMatchProcessed(consumer, supply, match, stock)) {
+                    logger.info("Match could not be processes.");
                     continue;
                 }
 
@@ -202,7 +291,8 @@ public class OrderService {
                 return BigDecimal.valueOf(-1);
             } else {
                 Order match = new Order(demand.getStock(), supply.getQuantity(), supply.getPrice());
-
+                logger.info(
+                        "$$$ Bought partial match from user: " + supply.getUser().toString() + "\n" + match.toString());
                 if (!consumerMatchProcessed(consumer, supply, match, stock)) {
                     continue;
                 }

@@ -14,6 +14,7 @@ public class Constants {
 	public static final String NO_STOCK_MSG = "No stock found!";
 	public static final String INV_PAGE_MSG = "Invalid page number!";
 	public static final String INV_QUANTITY_MSG = "Quantity can not be negative or zero!";
+	public static final String INV_PRICE_MSG = "Price can not be negative!";
 	public static final String NOT_ENOUGH_SUPPLY = "There is not enough stock for this supply!";
 	public static final String NOT_ENOUGH_BALANCE = "There is not enough balance for this demand!";
 	public static final Object NOT_ENOUGH_BALANCE_LOG = "There is not enough balance for this demand. It will be removed!";

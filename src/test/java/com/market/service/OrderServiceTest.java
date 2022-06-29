@@ -13,6 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import com.market.entity.Demand;
 import com.market.entity.Stock;
 import com.market.entity.Supply;
@@ -25,10 +29,6 @@ import com.market.repo.StockRepo;
 import com.market.repo.SupplyRepo;
 import com.market.repo.TradeRepo;
 import com.market.repo.UserRepo;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 public class OrderServiceTest {
 
@@ -245,7 +245,7 @@ public class OrderServiceTest {
                 when(mockUserRepo.findByUsername(mockSupplierUsername)).thenReturn(Optional.of(mockSupplier));
                 when(mockUserRepo.findByUsername(mockConsumerUsername)).thenReturn(Optional.of(mockConsumer));
                 when(mockStockRepo.findByName(mockStockName)).thenReturn(Optional.of(mockStock));
-                when(mockSupplyRepo.findAllByStockOrderByPriceAsc(mockStockName)).thenReturn(List.of(mockSupply));
+                when(mockSupplyRepo.findAllByStockOrderByPriceAsc(mockStock)).thenReturn(List.of(mockSupply));
 
                 orderService = new OrderService(mockUserRepo, mockDemandRepo, mockSupplyRepo, mockStockRepo,
                                 mockTradeRepo);
@@ -410,7 +410,7 @@ public class OrderServiceTest {
                 when(mockUserRepo.findByUsername(mockSupplierUsername)).thenReturn(Optional.of(mockSupplier));
                 when(mockUserRepo.findByUsername(mockConsumerUsername)).thenReturn(Optional.of(mockConsumer));
                 when(mockStockRepo.findByName(mockStockName)).thenReturn(Optional.of(mockStock));
-                when(mockSupplyRepo.findAllByStockOrderByPriceAsc(mockStockName)).thenReturn(List.of(mockSupply));
+                when(mockSupplyRepo.findAllByStockOrderByPriceAsc(mockStock)).thenReturn(List.of(mockSupply));
 
                 orderService = new OrderService(mockUserRepo, mockDemandRepo, mockSupplyRepo, mockStockRepo,
                                 mockTradeRepo);
